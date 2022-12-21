@@ -1,0 +1,9 @@
+{% extends 'base.jinja' %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+{% endblock scripts %}
+
+{% block content %}
+    Hello World!
+{% endblock content %}
