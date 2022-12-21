@@ -1,7 +1,8 @@
 from flask import Flask, render_template
+from env import DEBUG
 
 app = Flask(__name__)
-app.debug = True
+app.debug = DEBUG
 
 @app.route('/')
 def index():

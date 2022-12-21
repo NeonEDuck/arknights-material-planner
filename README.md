@@ -7,6 +7,7 @@
 
 - 安裝python
 - 執行`pip install -r requirements.txt`
+- 設置`.env`檔
 - 執行`python app.py`，即可開啟伺服器
 
 ### 注意事項
