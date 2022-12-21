@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from env import DEBUG
+from env import DEBUG, PORT
 
 app = Flask(__name__)
 app.debug = DEBUG
@@ -9,4 +9,4 @@ def index():
     return render_template('index.jinja')
 
 if __name__ == '__main__':
-    app.run('0.0.0.0', 80)
+    app.run('0.0.0.0', port=PORT)
