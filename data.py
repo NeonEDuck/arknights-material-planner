@@ -63,10 +63,10 @@ def generate_data():
         for phase in operator_data.get('phases', []):
             for item in phase.get('evolveCost', None) or []:
                 item_set.add(item['id'])
-                operator['phases'].append({
-                    'maxLevel': phase.get('maxLevel'),
-                    'evolveCost': phase.get('evolveCost')
-                })
+            operator['phases'].append({
+                'maxLevel': phase.get('maxLevel'),
+                'evolveCost': phase.get('evolveCost')
+            })
 
         for skill in operator_data.get('skills', []):
             skill['skillName'] = skill_data[skill['skillId']]['levels'][0]['name']
