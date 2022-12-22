@@ -7,6 +7,7 @@ OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/Arknights
 ITEM_TABLE_URL          = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/item_table.json'
 SKILL_TABLE_URL         = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/skill_table.json'
 UNIEQUIP_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/uniequip_table.json'
+BUILDING_DATA_URL       = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/building_data.json'
 IMAGE_URL_PREFIX        = 'https://prts.wiki/images/'
 AVATAR_IMAGE_PREFIX     = '头像_'
 ITEM_IMAGE_PREFIX       = '道具_带框_'
@@ -33,6 +34,9 @@ def generate_data():
 
     skill_res = requests.get(SKILL_TABLE_URL)
     skill_data = skill_res.json()
+
+    building_res = requests.get(BUILDING_DATA_URL)
+    building_data = building_res.json()
 
     operators_res = requests.get(OPERATOR_TABLE_URL)
     unfiltered_operators = operators_res.json()
@@ -95,11 +99,20 @@ def generate_data():
         ]
 
     item_dict = {
-        x['itemId']: {
-            'id': x['itemId'],
-            'name': x['name'],
-            'art': convert_to_image_link(f"{ITEM_IMAGE_PREFIX}{x['name']}"),
-        } for x in sorted(
+        d['itemId']: {
+            'id': d['itemId'],
+            'name': d['name'],
+            'art': convert_to_image_link(f"{ITEM_IMAGE_PREFIX}{d['name']}"),
+            'formulas': [
+                {
+                    'formulaId': f['formulaId'],
+                    'count': f['count'],
+                    'goldCost': f['goldCost'],
+                    'costs': f['costs'],
+                }
+                for _, f in filter(lambda x: x[1]['formulaId'] in (y['formulaId'] for y in d['buildingProductList']), building_data['workshopFormulas'].items())
+            ]
+        } for d in sorted(
             sorted(
                 [
                     item_data[x] for x in item_set
