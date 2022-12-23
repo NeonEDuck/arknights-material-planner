@@ -2,6 +2,7 @@ import re
 import hashlib
 from posixpath import join as urljoin
 import requests
+from opencc import OpenCC
 
 OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json'
 ITEM_TABLE_URL          = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/item_table.json'
@@ -26,6 +27,8 @@ def convert_to_image_link(name):
     return urljoin(IMAGE_URL_PREFIX, md5_name[0], md5_name[:2], name)
 
 def generate_data():
+    cc = OpenCC('s2t')
+
     item_res = requests.get(ITEM_TABLE_URL)
     item_data = item_res.json().get('items', {})
 
@@ -53,7 +56,7 @@ def generate_data():
 
     for operator_id, operator_data in {k: v for k, v in unfiltered_operators.items() if re.match(r'^char_', k)}.items():
         operator_dict[operator_id] = (operator := {
-            'name': operator_data['name'],
+            'name': cc.convert(operator_data['name']),
             'art': convert_to_image_link(f"{AVATAR_IMAGE_PREFIX}{operator_data['name']}"),
             'phases': [],
             'skills': [],
@@ -77,7 +80,7 @@ def generate_data():
 
             operator['skills'].append({
                 'skillId': skill['skillId'],
-                'skillName': skill['skillName'],
+                'skillName': cc.convert(skill['skillName']),
                 'art': convert_to_image_link(f"{SKILL_IMAGE_PREFIX}{skill['skillName']}"),
                 'levelUpCosts': [x.get('levelUpCost', {}) for x in skill.get('levelUpCostCond', [])]
             })
@@ -85,7 +88,7 @@ def generate_data():
         operator['uniequips'] = [
             {
                 'uniEquipId': x['uniEquipId'],
-                'uniEquipName': x['uniEquipName'],
+                'uniEquipName': cc.convert(x['uniEquipName']),
                 'art': convert_to_image_link(f"{UNIEQUIP_IMAGE_PREFIX}{x['uniEquipName']}") if i > 0 else None,
                 'typeIcon': x['typeIcon'],
                 'itemCost': x['itemCost'],
@@ -101,7 +104,7 @@ def generate_data():
     item_dict = {
         d['itemId']: {
             'id': d['itemId'],
-            'name': d['name'],
+            'name': cc.convert(d['name']),
             'art': convert_to_image_link(f"{ITEM_IMAGE_PREFIX}{d['name']}"),
             'formulas': [
                 {
