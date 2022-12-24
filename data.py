@@ -1,9 +1,14 @@
 import re
 import hashlib
-from posixpath import join as urljoin
+from pathlib import Path
 import requests
+import json
 from opencc import OpenCC
 
+ARKNIGHTS_GAMEDATA_JSON_NAME = 'arknights_gamedata.json'
+ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.0'
+
+GITHUB_COMMITS_URL      = 'https://api.github.com/repos/Kengxxiao/ArknightsGameData/commits/master'
 OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json'
 ITEM_TABLE_URL          = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/item_table.json'
 SKILL_TABLE_URL         = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/skill_table.json'
@@ -16,17 +21,27 @@ SKILL_IMAGE_PREFIX      = '技能_'
 UNIEQUIP_IMAGE_PREFIX   = '模组_'
 
 data_generated = False
-item_dict = {}
-operator_dict = {}
+materials = {}
+operators = {}
 
 def convert_to_image_link(name):
     if not re.match(r'\.png$', name):
         name = f'{name}.png'
     md5_name = hashlib.md5(name.encode('utf-8')).hexdigest()
 
-    return urljoin(IMAGE_URL_PREFIX, md5_name[0], md5_name[:2], name)
+    return str(Path(IMAGE_URL_PREFIX, md5_name[0], md5_name[:2], name))
 
 def generate_data():
+    commits_res = requests.get(GITHUB_COMMITS_URL)
+    latest_sha = commits_res.json().get('sha', '')
+
+    if Path('./private', ARKNIGHTS_GAMEDATA_JSON_NAME).is_file():
+        with open(Path('./private', ARKNIGHTS_GAMEDATA_JSON_NAME), 'r', encoding='utf-8') as f:
+            data = json.loads(f.read())
+
+        if data.get('sha') == latest_sha and data.get('version') == ARKNIGHTS_GAMEDATA_JSON_VERSION:
+            return (data['operators'], data['materials'])
+
     cc = OpenCC('s2t')
 
     item_res = requests.get(ITEM_TABLE_URL)
@@ -101,7 +116,7 @@ def generate_data():
             ))
         ]
 
-    item_dict = {
+    material_dict = {
         d['itemId']: {
             'id': d['itemId'],
             'name': cc.convert(d['name']),
@@ -125,11 +140,21 @@ def generate_data():
             key=lambda x: x['rarity']
         )
     }
-    return (operator_dict, item_dict)
+
+    with open(Path('./private', ARKNIGHTS_GAMEDATA_JSON_NAME), 'w', encoding='utf-8') as f:
+        f.write(json.dumps({
+            'sha': latest_sha,
+            'version': ARKNIGHTS_GAMEDATA_JSON_VERSION,
+            'operators': operator_dict,
+            'materials': material_dict,
+        }, ensure_ascii=False, separators=[',', ':']))
+
+    return (operator_dict, material_dict)
+
+
+if not Path('./private').is_dir():
+    Path('./private').mkdir()
 
 if not data_generated:
-    operator_dict, item_dict = generate_data()
+    operators, materials = generate_data()
     data_generated = True
-
-if __name__ == '__main__':
-    pass
