@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from env import DEBUG, PORT
+from config import DEBUG, PORT
 
 app = Flask(__name__)
 app.debug = DEBUG
