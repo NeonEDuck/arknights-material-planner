@@ -6,7 +6,7 @@ import json
 from opencc import OpenCC
 
 ARKNIGHTS_GAMEDATA_JSON_NAME = 'arknights_gamedata.json'
-ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.0'
+ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.1'
 
 GITHUB_COMMITS_URL      = 'https://api.github.com/repos/Kengxxiao/ArknightsGameData/commits/master'
 OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json'
@@ -61,9 +61,6 @@ def generate_data():
 
     operator_dict = {}
     item_set = {
-        '3301',                 # 技巧概要·卷1
-        '3302',                 # 技巧概要·卷2
-        '3303',                 # 技巧概要·卷3
         'mod_unlock_token',     # 模组數據塊
         'mod_update_token_1',   # 數據增補條
         'mod_update_token_2',   # 數據增補儀
@@ -71,6 +68,7 @@ def generate_data():
 
     for operator_id, operator_data in {k: v for k, v in unfiltered_operators.items() if re.match(r'^char_', k)}.items():
         operator_dict[operator_id] = (operator := {
+            'id': operator_id,
             'name': cc.convert(operator_data['name']),
             'art': convert_to_image_link(f"{AVATAR_IMAGE_PREFIX}{operator_data['name']}"),
             'phases': [],
@@ -115,6 +113,24 @@ def generate_data():
                 key=lambda x: x['uniEquipId']
             ))
         ]
+
+    new_item_set = item_data.copy()
+    while True:
+        check_item_set = new_item_set.copy()
+        new_item_set = set()
+        if len(check_item_set) == 0:
+            break
+
+        for item_id in check_item_set:
+            for formula in item_data[item_id]['buildingProductList']:
+                if formula['roomType'] != 'WORKSHOP':
+                    continue
+                formula_id = formula['formulaId']
+                formula_data = building_data['workshopFormulas'][formula_id]
+                for cost in formula_data['costs']:
+                    if cost['id'] not in item_set:
+                        new_item_set.add(cost['id'])
+                        item_set.add(cost['id'])
 
     material_dict = {
         d['itemId']: {
