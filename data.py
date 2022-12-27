@@ -6,7 +6,7 @@ import json
 from opencc import OpenCC
 
 ARKNIGHTS_GAMEDATA_JSON_NAME = 'arknights_gamedata.json'
-ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.1'
+ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.2'
 
 GITHUB_COMMITS_URL      = 'https://api.github.com/repos/Kengxxiao/ArknightsGameData/commits/master'
 OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json'
@@ -19,6 +19,19 @@ AVATAR_IMAGE_PREFIX     = '头像_'
 ITEM_IMAGE_PREFIX       = '道具_带框_'
 SKILL_IMAGE_PREFIX      = '技能_'
 UNIEQUIP_IMAGE_PREFIX   = '模组_'
+FIXED_NAME_TABLE        = {
+    'operators': {
+        'char_199_yak': '角峰',
+        'char_128_plosis': '白面鴞',
+        'char_4043_erato': '埃拉托',
+    },
+    'materials': {
+        '30011': '源岩',
+        '30012': '固源岩',
+        '30013': '固源岩组',
+        '30014': '提纯源岩',
+    },
+}
 
 data_generated = False
 materials = {}
@@ -83,11 +96,11 @@ def generate_data():
     for operator_id, operator_data in {k: v for k, v in unfiltered_operators.items() if re.match(r'^char_', k)}.items():
         operator_dict[operator_id] = (operator := {
             'id': operator_id,
-            'name': cc.convert(operator_data['name']),                                      # 幹員名稱
-            'art': convert_to_image_link(f"{AVATAR_IMAGE_PREFIX}{operator_data['name']}"),  # 幹員頭像
-            'phases': [],                                                                   # 幹員數值
-            'skills': [],                                                                   # 幹員技能
-            'uniequips': [],                                                                # 幹員模組
+            'name': FIXED_NAME_TABLE['operators'].get(operator_id, cc.convert(operator_data['name'])),  # 幹員名稱
+            'art': convert_to_image_link(f"{AVATAR_IMAGE_PREFIX}{operator_data['name']}"),              # 幹員頭像
+            'phases': [],                                                                               # 幹員數值
+            'skills': [],                                                                               # 幹員技能
+            'uniequips': [],                                                                            # 幹員模組
         })
 
         for phase in operator_data.get('phases', []):
@@ -150,7 +163,7 @@ def generate_data():
     material_dict = {
         d['itemId']: {
             'id': d['itemId'],
-            'name': cc.convert(d['name']),
+            'name': FIXED_NAME_TABLE['materials'].get(d['itemId'], cc.convert(d['name'])) ,
             'art': convert_to_image_link(f"{ITEM_IMAGE_PREFIX}{d['name']}"),
             'formulas': [
                 {
