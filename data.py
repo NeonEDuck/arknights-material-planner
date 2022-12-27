@@ -24,6 +24,7 @@ data_generated = False
 materials = {}
 operators = {}
 
+# 圖片連結的文字轉換(名稱中文轉md5)
 def convert_to_image_link(name):
     if not re.match(r'\.png$', name):
         name = f'{name}.png'
@@ -31,31 +32,40 @@ def convert_to_image_link(name):
 
     return str(Path(IMAGE_URL_PREFIX, md5_name[0], md5_name[:2], name))
 
+# 載入JSON資料
 def generate_data():
     commits_res = requests.get(GITHUB_COMMITS_URL)
     latest_sha = commits_res.json().get('sha', '')
 
+    # 讀取遊戲資料JSON
     if Path('./private', ARKNIGHTS_GAMEDATA_JSON_NAME).is_file():
         with open(Path('./private', ARKNIGHTS_GAMEDATA_JSON_NAME), 'r', encoding='utf-8') as f:
             data = json.loads(f.read())
 
+        # 檢查資料版本
         if data.get('sha') == latest_sha and data.get('version') == ARKNIGHTS_GAMEDATA_JSON_VERSION:
             return (data['operators'], data['materials'])
 
+    # 中文簡轉繁
     cc = OpenCC('s2t')
 
+    # 物品資料
     item_res = requests.get(ITEM_TABLE_URL)
     item_data = item_res.json().get('items', {})
 
+    # 模組資料
     mod_res = requests.get(UNIEQUIP_TABLE_URL)
     mod_data = mod_res.json().get('equipDict', {})
 
+    # 技能資料
     skill_res = requests.get(SKILL_TABLE_URL)
     skill_data = skill_res.json()
 
+    # 基建資料
     building_res = requests.get(BUILDING_DATA_URL)
     building_data = building_res.json()
 
+    # 幹員資料
     operators_res = requests.get(OPERATOR_TABLE_URL)
     unfiltered_operators = operators_res.json()
 
@@ -69,13 +79,17 @@ def generate_data():
         'mod_update_token_2',   # 數據增補儀
     }
 
+    # id:char_[num]_[code]
+    # Lancet-2:char_285_medic2
+
+    # 幹員資料整理
     for operator_id, operator_data in {k: v for k, v in unfiltered_operators.items() if re.match(r'^char_', k)}.items():
         operator_dict[operator_id] = (operator := {
-            'name': cc.convert(operator_data['name']),
-            'art': convert_to_image_link(f"{AVATAR_IMAGE_PREFIX}{operator_data['name']}"),
-            'phases': [],
-            'skills': [],
-            'uniequips': [],
+            'name': cc.convert(operator_data['name']),                                      # 幹員名稱
+            'art': convert_to_image_link(f"{AVATAR_IMAGE_PREFIX}{operator_data['name']}"),  # 幹員頭像
+            'phases': [],                                                                   # 幹員數值
+            'skills': [],                                                                   # 幹員技能
+            'uniequips': [],                                                                # 幹員模組
         })
 
         for phase in operator_data.get('phases', []):
@@ -116,6 +130,7 @@ def generate_data():
             ))
         ]
 
+    # 素材資料整理
     material_dict = {
         d['itemId']: {
             'id': d['itemId'],
@@ -141,6 +156,7 @@ def generate_data():
         )
     }
 
+    # 資料紀錄
     with open(Path('./private', ARKNIGHTS_GAMEDATA_JSON_NAME), 'w', encoding='utf-8') as f:
         f.write(json.dumps({
             'sha': latest_sha,
@@ -151,10 +167,11 @@ def generate_data():
 
     return (operator_dict, material_dict)
 
-
+# 若private資料夾不存在，即新建
 if not Path('./private').is_dir():
     Path('./private').mkdir()
 
+# 若遊戲資料JSON尚未建立，即新建
 if not data_generated:
     operators, materials = generate_data()
     data_generated = True
