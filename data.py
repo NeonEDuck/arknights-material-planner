@@ -6,7 +6,7 @@ import json
 from opencc import OpenCC
 
 ARKNIGHTS_GAMEDATA_JSON_NAME = 'arknights_gamedata.json'
-ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.2'
+ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.3'
 
 GITHUB_COMMITS_URL      = 'https://api.github.com/repos/Kengxxiao/ArknightsGameData/commits/master'
 OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json'
@@ -87,6 +87,7 @@ def generate_data():
         'mod_unlock_token',     # 模组數據塊
         'mod_update_token_1',   # 數據增補條
         'mod_update_token_2',   # 數據增補儀
+        '4001',                 # 龍門幣
     }
 
     # id:char_[num]_[code]
@@ -266,8 +267,8 @@ def operators_skill_data(operators, materials, input):
                     info[f'skill_{k}_values'] = "該技能無專精資訊"
                 data[f'skill_{k}'] = info
                 k+=1
-                
-    
+
+
     return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
 
 # 幹員模組資料
