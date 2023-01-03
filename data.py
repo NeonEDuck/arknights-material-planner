@@ -202,8 +202,8 @@ def generate_data():
 def operators_info_data(input):
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
+    data = {}
     for op_data_id, op_data_value in op_data.items():
-        data = {}
         if re.match(f'.*{input}.*',op_data_value['name']):
             data['id'] = op_data_id
             data['name'] = op_data_value['name']
@@ -216,8 +216,8 @@ def operators_evol_data(input):
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
+    data = {}
     for op_data_value in op_data.values():
-        data = {}
         if re.match(f'.*{input}.*',op_data_value['name']):
             i = 1
             for phase_data in op_data_value['phases']:
@@ -242,8 +242,8 @@ def operators_skill_data(input):
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
+    data = {}
     for op_data_value in op_data.values():
-        data = {}
         if re.match(f'.*{input}.*',op_data_value['name']):
             k = 1
             for phase_data in op_data_value['skills']:
@@ -287,9 +287,9 @@ def operators_uniequip_data(input):
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
+    mod = {}
     itemCost:Dict[str,any]
     for op_data_value in op_data.values():
-        mod = {}
         if re.match(f'.*{input}.*',op_data_value['name']):
             j = 1
             for phase_data in op_data_value['uniequips']:
