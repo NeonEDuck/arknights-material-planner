@@ -11,30 +11,33 @@
         <tbody>
             <tr>
                 <th></th>
-                <th>專精1</th>
-                <th>專精2</th>
-                <th>專精3</th>
+                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/5/57/专精_1.png" alt="專精1"><span>專精1</span></div></th>
+                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/c/c2/专精_2.png" alt="專精2"><span>專精2</span></div></th>
+                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/4/48/专精_3.png" alt="專精3"><span>專精3</span></div></th>
                 <th></th>
             </tr>
 
             {% for _, skillset in operator.skills.items() %}
                 {% if skillset['skill_'+(loop.index|string)+'_values'] is mapping %}
-                {% set number = loop.index0 %}
+                    {% set number = loop.index0 %}
                     <tr>
-                        <td>{{ skillset['skill_'+(loop.index|string)+'_name'] }}</td>
-                            {% for _, skill in skillset['skill_'+(loop.index|string)+'_values'].items() %}
-                                {% if skill %}
-                                    <td>
-                                        <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}" data-level="{{ loop.index0 }}">
-                                        {% for _, item in skill.items() %}
-                                            <div class="item-container">
-                                                <img src="{{ item.split(',')[2] }}" alt="{{ item.split(',')[0] }}">
-                                                <span>{{ item.split(',')[1] }}</span>
-                                            </div>
-                                        {% endfor %}
-                                    </td>
-                                {% endif %}
-                            {% endfor %}
+                        <td>
+                            <img src="{{ skillset['skill_'+(loop.index|string)+'_art'] }}" alt="{{ skillset['skill_'+(loop.index|string)+'_name'] }}" width="60" height="60">
+                            {{ skillset['skill_'+(loop.index|string)+'_name'] }}
+                        </td>
+                        {% for _, skill in skillset['skill_'+(loop.index|string)+'_values'].items() %}
+                            {% if skill %}
+                                <td>
+                                    <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}" data-level="{{ loop.index0 }}">
+                                    {% for _, item in skill.items() %}
+                                        <div class="item-container">
+                                            <img src="{{ item.split(',')[2] }}" alt="{{ item.split(',')[0] }}">
+                                            <span>{{ item.split(',')[1] }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
                         <td>
                             <button class="select-all-btn" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}">全選</button>
                             <button class="unselect-all-btn" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}">取消</button>
@@ -57,7 +60,7 @@
                         <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="phase" data-level="{{ loop.index }}">
                     </td>
                     <td>
-                        <span>精{{ loop.index-1 }} → 精{{ loop.index }}</span>
+                        <img src="{{ url_for('static', filename='imgs/elite'+(loop.index|string)+'.png') }}" alt="精1" width="80">
                     </td>
                     <td>
                         {% for _, item in phase.items() %}
@@ -71,34 +74,41 @@
             {% endfor %}
         </tbody>
     </table>
-    <h2>模組</h2>
-    {% for _, uniequip in operator.uniequips.items() %}
-        {% set number = loop.index %}
-        <table>
-            <tbody>
-                <tr>
-                    <th colspan="6">{{ uniequip.name }}</th>
-                </tr>
-                {% for _, stage in uniequip.mod_value.items() %}
+    {% if operator.uniequips.items()|length > 0 %}
+        <h2>模組</h2>
+        {% for _, uniequip in operator.uniequips.items() %}
+            {% set number = loop.index %}
+            <table>
+                <tbody>
                     <tr>
-                        <td>
-                            <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="uniequip" data-number="{{ number }}" data-level="{{ loop.index0 }}">
-                        </td>
-                        <td>
-                            <span>stage {{ loop.index }}</span>
-                        </td>
-                        <td>
-                            {% for _, item in stage.items() %}
-                                <div class="item-container">
-                                    <img src="{{ item.split(',')[2] }}" alt="{{ item.split(',')[0] }}">
-                                    <span>{{ item.split(',')[1] }}</span>
-                                </div>
-                            {% endfor %}
-                        </td>
+                        <th colspan="6">
+                            <div class="flex flex-col align-center">
+                                <img src="{{ uniequip.art }}" alt="{{ uniequip.name }}" width="180">
+                                {{ uniequip.name }}
+                            </div>
+                        </th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endfor %}
+                    {% for _, stage in uniequip.mod_value.items() %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="uniequip" data-number="{{ number }}" data-level="{{ loop.index0 }}">
+                            </td>
+                            <td>
+                                <span>stage {{ loop.index }}</span>
+                            </td>
+                            <td>
+                                {% for _, item in stage.items() %}
+                                    <div class="item-container">
+                                        <img src="{{ item.split(',')[2] }}" alt="{{ item.split(',')[0] }}">
+                                        <span>{{ item.split(',')[1] }}</span>
+                                    </div>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+    {% endif %}
 </div>
 {% endblock operator_content %}
