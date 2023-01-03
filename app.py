@@ -15,7 +15,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-
     return render_template('index.jinja', operators=operators, materials=materials)
 
 @app.route('/operator')
@@ -27,7 +26,7 @@ def operator():
     uniequip = operators_uniequip_data(search)
     op = {**info, 'phases': evol, 'skills': skill, 'uniequips': uniequip}
     print(op)
-    return render_template('operator.jinja', operator=op, pretty=json.dumps(op, ensure_ascii=False, indent='    '))
+    return render_template('operator.jinja', operators=operators, materials=materials, operator=op, pretty=json.dumps(op, ensure_ascii=False, indent='    '))
 
 # @app.route("/searchdata",methods=["POST","GET"])
 # def searchdata():

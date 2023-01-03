@@ -1,13 +1,8 @@
-{% extends 'base.jinja' %}
+{% extends 'planner_base.jinja' %}
 
-{% block scripts %}
-{% endblock scripts %}
-
-{% block content %}
+{% block operator_content %}
 <div>
-
-    <pre>{{ pretty }}</pre>
-    {# <div>
+    <div>
         <img src="{{ operator.art }}" width="80" height="80" alt="幹員名稱">
         {{ operator.name }}
     </div>
@@ -22,91 +17,88 @@
                 <th></th>
             </tr>
 
-            {% for _, skill in operator.skills.items() %}
+            {% for _, skillset in operator.skills.items() %}
+                {% if skillset['skill_'+(loop.index|string)+'_values'] is mapping %}
                 {% set number = loop.index0 %}
-                <tr>
-                    <td>{{ skill[f'skill_{loop.index}_name'] }}</td>
-                    {% for _, item in skill[f'skill_{loop.index}_values'].items() %}
-                        {% if levelUpCost %}
-                            <td>
-                                <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}" data-level="{{ loop.index0 }}">
-                                {% for item in levelUpCost %}
-                                    <div class="item-container">
-                                        <img src="{{ materials[item.id].art }}" alt="{{ materials[item.id].name }}">
-                                        <span>{{ item.count }}</span>
-                                    </div>
-                                {% endfor %}
-                            </td>
-                        {% endif %}
-                    {% endfor %}
-                    <td>
-                        <button class="select-all-btn" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}">全選</button>
-                        <button class="unselect-all-btn" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}">取消</button>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table> #}
-    {# <h2>精英化</h2>
-    <table>
-        <tbody>
-            <tr>
-                <th colspan="6">精英化材料</th>
-            </tr>
-
-            {% for phase in operator.phases %}
-                {% if phase.evolveCost %}
                     <tr>
-                        <td>
-                            <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="phase" data-level="{{ loop.index0 }}">
-                        </td>
-                        <td>
-                            <span>精{{ loop.index0-1 }} → 精{{ loop.index0 }}</span>
-                        </td>
-                        <td>
-                            {% for item in phase.evolveCost %}
-                                <div class="item-container">
-                                    <img src="{{ materials[item.id].art }}" alt="{{ materials[item.id].name }}">
-                                    <span>{{ item.count }}</span>
-                                </div>
+                        <td>{{ skillset['skill_'+(loop.index|string)+'_name'] }}</td>
+                            {% for _, skill in skillset['skill_'+(loop.index|string)+'_values'].items() %}
+                                {% if skill %}
+                                    <td>
+                                        <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}" data-level="{{ loop.index0 }}">
+                                        {% for _, item in skill.items() %}
+                                            <div class="item-container">
+                                                <img src="{{ item.split(',')[2] }}" alt="{{ item.split(',')[0] }}">
+                                                <span>{{ item.split(',')[1] }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </td>
+                                {% endif %}
                             {% endfor %}
+                        <td>
+                            <button class="select-all-btn" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}">全選</button>
+                            <button class="unselect-all-btn" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}">取消</button>
                         </td>
                     </tr>
                 {% endif %}
             {% endfor %}
         </tbody>
     </table>
+    <h2>精英化</h2>
+    <table>
+        <tbody>
+            <tr>
+                <th colspan="6">精英化材料</th>
+            </tr>
+
+            {% for _, phase in operator.phases.items() %}
+                <tr>
+                    <td>
+                        <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="phase" data-level="{{ loop.index }}">
+                    </td>
+                    <td>
+                        <span>精{{ loop.index-1 }} → 精{{ loop.index }}</span>
+                    </td>
+                    <td>
+                        {% for _, item in phase.items() %}
+                            <div class="item-container">
+                                <img src="{{ item.split(',')[2] }}" alt="{{ item.split(',')[0] }}">
+                                <span>{{ item.split(',')[1] }}</span>
+                            </div>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     <h2>模組</h2>
-    {% for uniequip in operator.uniequips %}
-        {% set number = loop.index0 %}
-        {% if uniequip.itemCost %}
-            <table>
-                <tbody>
+    {% for _, uniequip in operator.uniequips.items() %}
+        {% set number = loop.index %}
+        <table>
+            <tbody>
+                <tr>
+                    <th colspan="6">{{ uniequip.name }}</th>
+                </tr>
+                {% for _, stage in uniequip.mod_value.items() %}
                     <tr>
-                        <th colspan="6">{{ uniequip.uniEquipName }}</th>
+                        <td>
+                            <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="uniequip" data-number="{{ number }}" data-level="{{ loop.index0 }}">
+                        </td>
+                        <td>
+                            <span>stage {{ loop.index }}</span>
+                        </td>
+                        <td>
+                            {% for _, item in stage.items() %}
+                                <div class="item-container">
+                                    <img src="{{ item.split(',')[2] }}" alt="{{ item.split(',')[0] }}">
+                                    <span>{{ item.split(',')[1] }}</span>
+                                </div>
+                            {% endfor %}
+                        </td>
                     </tr>
-                    {% for stage in uniequip.itemCost.values() %}
-                        <tr>
-                            <td>
-                                <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="uniequip" data-number="{{ number }}" data-level="{{ loop.index0 }}">
-                            </td>
-                            <td>
-                                <span>stage {{ loop.index }}</span>
-                            </td>
-                            <td>
-                                {% for item in stage %}
-                                    <div class="item-container">
-                                        <img src="{{ materials[item.id].art }}" alt="{{ materials[item.id].name }}">
-                                        <span>{{ item.count }}</span>
-                                    </div>
-                                {% endfor %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-    {% endfor %} #}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
 </div>
-<pre>{{ pretty }}</pre>
-{% endblock content %}
+{% endblock operator_content %}

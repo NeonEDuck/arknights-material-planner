@@ -1,10 +1,32 @@
 'use strict'
 const totalMaterialContainer = document.querySelector('#total-material-container')
-const userSelection = []
+const userSelection = JSON.parse(localStorage.getItem('userSelection') || '[]')
+
+for (const selection of userSelection) {
+    const token = [...selection.split('-')]
+    const operatorId = token[0]
+    const upgrade = token[1]
+    const level = token[3] || token[2]
+    const number = (token[3])?token[2]:null
+
+    let ckb = document.querySelector(`input[type="checkbox"][data-operator="${operatorId}"][data-upgrade="${upgrade}"][data-level="${level}"]` + ((number)?`[data-number="${number}"]`:''))
+
+    if (ckb) {
+        ckb.checked = true
+    }
+}
+calculateTotal()
+
+function htmlToElement(html) {
+    let template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content.firstElementChild;
+}
 
 function generateId(htmlElement) {
     return `${htmlElement.dataset.operator}-${htmlElement.dataset.upgrade}-${(htmlElement.dataset.number)?htmlElement.dataset.number+"-":""}${htmlElement.dataset.level}`
 }
+
 function calculateTotal() {
     const totalMaterials = {}
 
@@ -19,8 +41,8 @@ function calculateTotal() {
         const token = [...selection.split('-')]
         const operatorId = token[0]
         const upgrade = token[1]
-        const level = token[3] || token[2]
-        const number = (token[3])?token[2]:0
+        const level = Number(token[3] || token[2])
+        const number = Number((token[3])?token[2]:0)
 
         const operator = operators[operatorId]
 
@@ -50,6 +72,10 @@ function calculateTotal() {
         </div>
         `
     }
+
+    console.log(userSelection)
+
+    localStorage.setItem('userSelection', JSON.stringify(userSelection))
 }
 
 document.querySelectorAll('.select-ckb').forEach(ckb => {
@@ -58,8 +84,11 @@ document.querySelectorAll('.select-ckb').forEach(ckb => {
             userSelection.push(generateId(ckb))
         }
         else {
-            const index = userSelection.indexOf(generateId(ckb))
-            if (index !== -1) {
+            while (true) {
+                const index = userSelection.indexOf(generateId(ckb))
+                if (index === -1) {
+                    break
+                }
                 userSelection.splice(index, 1)
             }
         }
@@ -88,7 +117,7 @@ document.querySelectorAll('.unselect-all-btn').forEach(btn => {
     })
 });
 
-document.querySelector('#all-btn').addEventListener('click', () => {
+document.querySelector('#select-all-btn').addEventListener('click', () => {
     document.querySelectorAll('.select-ckb').forEach((ckb) => {
         if (!ckb.checked) {
             ckb.checked = true;
@@ -96,4 +125,46 @@ document.querySelector('#all-btn').addEventListener('click', () => {
         }
     })
     calculateTotal()
+})
+
+document.querySelector('#clear-all-btn').addEventListener('click', () => {
+    document.querySelectorAll('.select-ckb').forEach((ckb) => {
+        if (ckb.checked) {
+            ckb.checked = false;
+            while (true) {
+                const index = userSelection.indexOf(generateId(ckb))
+                if (index === -1) {
+                    break
+                }
+                userSelection.splice(index, 1)
+            }
+        }
+    })
+    calculateTotal()
+})
+
+const serachBox = document.querySelector('#search-box')
+const serachBoxSuggestion = document.querySelector('#search-box-suggestion')
+serachBox.addEventListener('keyup', () => {
+    serachBoxSuggestion.innerHTML = ''
+    const text = serachBox.value.trim()
+    if (text.length === 0) {
+        return
+    }
+
+    let i = 0
+    const regex = RegExp(`.*${text}.*`, 'i')
+    for (const operator of Object.values(operators).filter(x => (x.name.match(regex)))) {
+        if (i++ >= 10) {
+            break
+        }
+        const li = htmlToElement(`
+            <li>${operator.name}</li>
+        `)
+        li.addEventListener('click', () => {
+            serachBox.value = operator.name
+            serachBoxSuggestion.innerHTML = ''
+        })
+        serachBoxSuggestion.appendChild(li)
+    }
 })
