@@ -196,6 +196,111 @@ def generate_data():
 
     return (operator_dict, material_dict)
 
+# 幹員基本資料(名稱、圖片)
+def operators_info_data(operators, input):
+    data = {}
+    op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
+
+    for op_data_value in op_data.values():
+        if re.match(f'.*{input}.*',op_data_value['name']):
+            data['name'] = op_data_value['name']
+            data['art'] = op_data_value['art']
+
+    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+
+# 幹員晉升資料(精英化I、II)
+def operators_evol_data(operators, materials, input):
+    data = {}
+    mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
+    op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
+
+    for op_data_value in op_data.values():
+        if re.match(f'.*{input}.*',op_data_value['name']):
+            i = 1
+            for phase_data in op_data_value['phases']:
+                if phase_data['evolveCost'] is not None:
+                    j = 1
+                    value = {}
+                    for evolveCost in phase_data['evolveCost']:
+                        title = f'evol_{i}_{j}'
+                        mat_name = materials[evolveCost['id']]['name']
+                        mat_count = evolveCost['count']
+                        mat_art = materials[evolveCost['id']]['art']
+                        mat_values = f'{mat_name},{mat_count},{mat_art}'
+                        value[title] = mat_values
+                        j+=1
+                    data[f'evol_{i}'] = value
+                    i+=1
+
+    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+
+# 幹員技能資料(專精I、II、III)
+def operators_skill_data(operators, materials, input):
+    data = {}
+    value = {}
+    mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
+    op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
+
+    for op_data_value in op_data.values():
+        if re.match(f'.*{input}.*',op_data_value['name']):
+            k = 1
+            for phase_data in op_data_value['skills']:
+                info = {}
+                info[f'skill_{k}_name'] = phase_data['skillName']
+                info[f'skill_{k}_art'] = phase_data['art']
+                if len(phase_data['levelUpCosts']) != 0:
+                    i = 1
+                    for skillItems in phase_data['levelUpCosts']:
+                        j = 1
+                        for skillItemCost in skillItems:
+                            title = f'skill_{i}_{j}'
+                            mat_name = materials[skillItemCost['id']]['name']
+                            mat_count = skillItemCost['count']
+                            mat_art = materials[skillItemCost['id']]['art']
+                            mat_values = f'{mat_name},{mat_count},{mat_art}'
+                            value[title] = mat_values
+                            j+=1
+                        i+=1
+                    info[f'skill_{k}_values'] = value
+                else:
+                    info[f'skill_{k}_values'] = "該技能無專精資訊"
+                data[f'skill_{k}'] = info
+                k+=1
+                
+    
+    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+
+# 幹員模組資料
+def operators_uniequip_data(operators, materials, input):
+    data = {}
+    value = {}
+    mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
+    op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
+
+    itemCost:Dict[str,any]
+    for op_data_value in op_data.values():
+        if re.match(f'.*{input}.*',op_data_value['name']):
+            for phase_data in op_data_value['uniequips']:
+                if phase_data['art'] is not None:
+                    data['name'] = phase_data['uniEquipName']
+                    data['art'] = phase_data['art']
+                    itemCost = phase_data['itemCost']
+                    for id, v in itemCost.items():
+                        i = 1
+
+                        for modItems in v:
+                            if modItems['id'] != '4001':
+                                title = f'mod_{id}_{i}'
+                                mat_name = materials[modItems['id']]['name']
+                                mat_count = modItems['count']
+                                mat_art = materials[modItems['id']]['art']
+                                mat_values = f'{mat_name},{mat_count},{mat_art}'
+                                value[title] = mat_values
+                            i+=1
+                    data[f'values'] = value
+
+    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+
 # 若private資料夾不存在，即新建
 if not Path('./private').is_dir():
     Path('./private').mkdir()
