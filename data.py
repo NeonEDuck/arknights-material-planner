@@ -7,7 +7,7 @@ from opencc import OpenCC
 from typing import Dict
 
 ARKNIGHTS_GAMEDATA_JSON_NAME = 'arknights_gamedata.json'
-ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.3'
+ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.4'
 
 GITHUB_COMMITS_URL      = 'https://api.github.com/repos/Kengxxiao/ArknightsGameData/commits/master'
 OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json'
@@ -33,6 +33,17 @@ FIXED_NAME_TABLE        = {
         '30014': '提纯源岩',
     },
 }
+# FIXED_EVOLVE_EXCLUDE = [
+
+# ]
+EVOLVE_GOLD_COST = [
+    [ -1, -1, -1 ],
+    [ -1, -1, -1 ],
+    [ -1, 10000, -1 ],
+    [ -1, 15000, 60000 ],
+    [ -1, 20000, 120000 ],
+    [ -1, 30000, 180000 ]
+]
 
 data_generated = False
 materials = {}
@@ -105,12 +116,21 @@ def generate_data():
             'uniequips': [],                                                                            # 幹員模組
         })
 
-        for phase in operator_data.get('phases', []):
+        for i, phase in enumerate(operator_data.get('phases', [])):
             for item in phase.get('evolveCost', None) or []:
                 item_set.add(item['id'])
+            evolveCost = phase.get('evolveCost')
+            gold_cost = EVOLVE_GOLD_COST[operator_data['rarity']][i]
+            if not operator_data['isNotObtainable'] and gold_cost != -1:
+                if evolveCost is None:
+                    evolveCost = []
+                evolveCost.append({
+                    'id': '4001',
+                    'count': gold_cost
+                })
             operator['phases'].append({
                 'maxLevel': phase.get('maxLevel'),
-                'evolveCost': phase.get('evolveCost')
+                'evolveCost': evolveCost
             })
 
         for skill in operator_data.get('skills', []):
