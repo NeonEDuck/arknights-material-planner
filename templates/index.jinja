@@ -7,7 +7,7 @@
             <img src="{{ operator.art }}" width="80" height="80" alt="幹員名稱">
             {{ operator.name }}
         </div>
-        {% if operator.skills|length > 0 %}
+        {% if operator.skills|length > 0 and operator.skills[0].levelUpCosts|length > 0 %}
             <h2>專精訓練</h2>
             <table>
                 <tbody>
