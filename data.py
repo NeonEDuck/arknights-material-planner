@@ -284,36 +284,38 @@ def operators_skill_data(input):
 
 # 幹員模組資料
 def operators_uniequip_data(input):
-    data = {}
-    value = {}
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
     itemCost:Dict[str,any]
     for op_data_value in op_data.values():
+        mod = {}
         if re.match(f'.*{input}.*',op_data_value['name']):
             j = 1
             for phase_data in op_data_value['uniequips']:
                 if phase_data['art'] is not None:
-                    print(len(phase_data))
+                    data = {}
+                    value = {}
                     data['name'] = phase_data['uniEquipName']
                     data['art'] = phase_data['art']
                     itemCost = phase_data['itemCost']
                     for id, v in itemCost.items():
                         i = 1
-
+                        up = {}
                         for modItems in v:
-                            if modItems['id'] != '4001':
-                                title = f'mod_{id}_{i}'
-                                mat_name = materials[modItems['id']]['name']
-                                mat_count = modItems['count']
-                                mat_art = materials[modItems['id']]['art']
-                                mat_values = f'{mat_name},{mat_count},{mat_art}'
-                                value[title] = mat_values
+                            title = f'mod_{j}_{id}_{i}'
+                            mat_name = materials[modItems['id']]['name']
+                            mat_count = modItems['count']
+                            mat_art = materials[modItems['id']]['art']
+                            mat_values = f'{mat_name},{mat_count},{mat_art}'
+                            up[title] = mat_values
+                            value[f'mod_{j}_{id}'] = up
                             i+=1
                     data[f'values'] = value
+                    mod[f'mod_{j}'] = data
+                    j+=1
 
-    return data
+    return mod
 
 # 若private資料夾不存在，即新建
 if not Path('./private').is_dir():
