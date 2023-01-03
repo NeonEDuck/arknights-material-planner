@@ -203,8 +203,9 @@ def operators_info_data(input):
     data = {}
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
-    for op_data_value in op_data.values():
+    for op_data_id, op_data_value in op_data.items():
         if re.match(f'.*{input}.*',op_data_value['name']):
+            data['id'] = op_data_id
             data['name'] = op_data_value['name']
             data['art'] = op_data_value['art']
 
