@@ -200,10 +200,10 @@ def generate_data():
 
 # 幹員基本資料(名稱、圖片)
 def operators_info_data(input):
-    data = {}
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
     for op_data_id, op_data_value in op_data.items():
+        data = {}
         if re.match(f'.*{input}.*',op_data_value['name']):
             data['id'] = op_data_id
             data['name'] = op_data_value['name']
@@ -213,11 +213,11 @@ def operators_info_data(input):
 
 # 幹員晉升資料(精英化I、II)
 def operators_evol_data(input):
-    data = {}
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
     for op_data_value in op_data.values():
+        data = {}
         if re.match(f'.*{input}.*',op_data_value['name']):
             i = 1
             for phase_data in op_data_value['phases']:
@@ -239,15 +239,15 @@ def operators_evol_data(input):
 
 # 幹員技能資料(專精I、II、III)
 def operators_skill_data(input):
-    data = {}
-    value = {}
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
     for op_data_value in op_data.values():
+        data = {}
         if re.match(f'.*{input}.*',op_data_value['name']):
             k = 1
             for phase_data in op_data_value['skills']:
+                value = {}
                 info = {}
                 info[f'skill_{k}_name'] = phase_data['skillName']
                 info[f'skill_{k}_art'] = phase_data['art']
@@ -292,8 +292,10 @@ def operators_uniequip_data(input):
     itemCost:Dict[str,any]
     for op_data_value in op_data.values():
         if re.match(f'.*{input}.*',op_data_value['name']):
+            j = 1
             for phase_data in op_data_value['uniequips']:
                 if phase_data['art'] is not None:
+                    print(len(phase_data))
                     data['name'] = phase_data['uniEquipName']
                     data['art'] = phase_data['art']
                     itemCost = phase_data['itemCost']
