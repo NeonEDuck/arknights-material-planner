@@ -311,7 +311,7 @@ def operators_uniequip_data(input):
                             up[title] = mat_values
                             value[f'mod_{j}_{id}'] = up
                             i+=1
-                    data[f'values'] = value
+                    data[f'mod_value'] = value
                     mod[f'mod_{j}'] = data
                     j+=1
 
