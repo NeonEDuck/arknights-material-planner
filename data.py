@@ -4,6 +4,7 @@ from pathlib import Path
 import requests
 import json
 from opencc import OpenCC
+from typing import Dict
 
 ARKNIGHTS_GAMEDATA_JSON_NAME = 'arknights_gamedata.json'
 ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.3'
@@ -257,14 +258,16 @@ def operators_skill_data(input):
                         if skillItems is None:
                             noned = True
                             break
+                        up = {}
                         for skillItemCost in skillItems:
-                            title = f'skill_{i}_{j}'
+                            title = f'skillUp_{i}_{j}'
                             mat_name = materials[skillItemCost['id']]['name']
                             mat_count = skillItemCost['count']
                             mat_art = materials[skillItemCost['id']]['art']
                             mat_values = f'{mat_name},{mat_count},{mat_art}'
-                            value[title] = mat_values
+                            up[title] = mat_values
                             j+=1
+                        value[f'skillUp_{i}'] = up
                         i+=1
                     info[f'skill_{k}_values'] = value
                 else:
