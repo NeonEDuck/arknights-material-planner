@@ -1,0 +1,36 @@
+{% extends 'base.jinja' %}
+
+{% block scripts %}
+<script>
+    const operators = {{ operators | tojson | safe }}
+    const materials = {{ materials | tojson | safe }}
+</script>
+<script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+{% endblock scripts %}
+
+{% block content %}
+<div id="planner-container">
+    <main id="planner-main">
+        <div>
+            <form method="get" action="/operator" class="flex flex-row">
+                <div id="search-box-wrapper">
+                    <input type="text" name="search" id="search-box" autocomplete="off"/>
+                    <ul id="search-box-suggestion"></ul>
+                </div>
+                <input type="submit" value="Search" class="search_button"/><br/>
+            </form>
+            {# <input type="text" placeholder="搜尋幹員..."> #}
+        </div>
+        {% block operator_content %}
+
+        {% endblock operator_content %}
+    </main>
+
+    <footer id="planner-footer">
+        <button id="select-all-btn">全選</button>
+        <button id="clear-all-btn">清空</button>
+        <span>總計:</span>
+        <div id="total-material-container"></div>
+    </footer>
+</div>
+{% endblock content %}

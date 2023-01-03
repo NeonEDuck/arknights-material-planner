@@ -1,9 +1,125 @@
-{% extends 'base.jinja' %}
-{% include 'operator.html' %}
+{% extends 'planner_base.jinja' %}
 
-{% block scripts %}
-    <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
-{% endblock scripts %}
-{% block content %}
-    
-{% endblock content %}
+{% block operator_content %}
+{% for _, operator in operators.items() %}
+    <div>
+        <div>
+            <img src="{{ operator.art }}" width="80" height="80" alt="幹員名稱">
+            {{ operator.name }}
+        </div>
+        {% if operator.skills|length > 0 and operator.skills[0].levelUpCosts|length > 0 %}
+            <h2>專精訓練</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/5/57/专精_1.png" alt="專精1"><span>專精1</span></div></th>
+                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/c/c2/专精_2.png" alt="專精2"><span>專精2</span></div></th>
+                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/4/48/专精_3.png" alt="專精3"><span>專精3</span></div></th>
+                        <th></th>
+                    </tr>
+
+                    {% for skill in operator.skills %}
+                        {% if skill.levelUpCosts|length > 0 %}
+                            {% set number = loop.index0 %}
+                            <tr>
+                                <td>
+                                    <img src="{{ skill.art }}" alt="{{ skill.skillName }}" width="60" height="60">
+                                    {{ skill.skillName }}
+                                </td>
+                                {% for levelUpCost in skill.levelUpCosts %}
+                                    {% if levelUpCost %}
+                                        <td>
+                                            <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}" data-level="{{ loop.index0 }}">
+                                            {% for item in levelUpCost %}
+                                                <div class="item-container">
+                                                    <img src="{{ materials[item.id].art }}" alt="{{ materials[item.id].name }}">
+                                                    <span>{{ item.count }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                                <td>
+                                    <button class="select-all-btn" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}">全選</button>
+                                    <button class="unselect-all-btn" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}">取消</button>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        {% if operator.phases|length > 1 %}
+            <h2>精英化</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <th colspan="6">精英化材料</th>
+                    </tr>
+
+                    {% for phase in operator.phases %}
+                        {% if phase.evolveCost %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="phase" data-level="{{ loop.index0 }}">
+                                </td>
+                                <td>
+                                    {# <span>精{{ loop.index0-1 }} → 精{{ loop.index0 }}</span> #}
+                                    <img src="{{ url_for('static', filename='imgs/elite'+(loop.index0|string)+'.png') }}" alt="精1" width="80">
+                                </td>
+                                <td>
+                                    {% for item in phase.evolveCost %}
+                                        <div class="item-container">
+                                            <img src="{{ materials[item.id].art }}" alt="{{ materials[item.id].name }}">
+                                            <span>{{ item.count }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        {% if operator.uniequips|length > 0 %}
+            <h2>模組</h2>
+            {% for uniequip in operator.uniequips %}
+                {% set number = loop.index0 %}
+                {% if uniequip.itemCost %}
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th colspan="6">
+                                    <div class="flex flex-col align-center">
+                                        <img src="{{ uniequip.art }}" alt="{{ uniequip.uniEquipName }}" width="180">
+                                        {{ uniequip.uniEquipName }}
+                                    </div>
+                                </th>
+                            </tr>
+                            {% for stage in uniequip.itemCost.values() %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="uniequip" data-number="{{ number }}" data-level="{{ loop.index0 }}">
+                                    </td>
+                                    <td>
+                                        <span>stage {{ loop.index }}</span>
+                                    </td>
+                                    <td>
+                                        {% for item in stage %}
+                                            <div class="item-container">
+                                                <img src="{{ materials[item.id].art }}" alt="{{ materials[item.id].name }}">
+                                                <span>{{ item.count }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endfor %}
+{% endblock operator_content %}

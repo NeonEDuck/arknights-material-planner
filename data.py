@@ -4,9 +4,10 @@ from pathlib import Path
 import requests
 import json
 from opencc import OpenCC
+from typing import Dict
 
 ARKNIGHTS_GAMEDATA_JSON_NAME = 'arknights_gamedata.json'
-ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.3'
+ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.4'
 
 GITHUB_COMMITS_URL      = 'https://api.github.com/repos/Kengxxiao/ArknightsGameData/commits/master'
 OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json'
@@ -32,6 +33,17 @@ FIXED_NAME_TABLE        = {
         '30014': '提纯源岩',
     },
 }
+# FIXED_EVOLVE_EXCLUDE = [
+
+# ]
+EVOLVE_GOLD_COST = [
+    [ -1, -1, -1 ],
+    [ -1, -1, -1 ],
+    [ -1, 10000, -1 ],
+    [ -1, 15000, 60000 ],
+    [ -1, 20000, 120000 ],
+    [ -1, 30000, 180000 ]
+]
 
 data_generated = False
 materials = {}
@@ -104,12 +116,21 @@ def generate_data():
             'uniequips': [],                                                                            # 幹員模組
         })
 
-        for phase in operator_data.get('phases', []):
+        for i, phase in enumerate(operator_data.get('phases', [])):
             for item in phase.get('evolveCost', None) or []:
                 item_set.add(item['id'])
+            evolveCost = phase.get('evolveCost')
+            gold_cost = EVOLVE_GOLD_COST[operator_data['rarity']][i]
+            if not operator_data['isNotObtainable'] and gold_cost != -1:
+                if evolveCost is None:
+                    evolveCost = []
+                evolveCost.append({
+                    'id': '4001',
+                    'count': gold_cost
+                })
             operator['phases'].append({
                 'maxLevel': phase.get('maxLevel'),
-                'evolveCost': phase.get('evolveCost')
+                'evolveCost': evolveCost
             })
 
         for skill in operator_data.get('skills', []):
@@ -198,25 +219,26 @@ def generate_data():
     return (operator_dict, material_dict)
 
 # 幹員基本資料(名稱、圖片)
-def operators_info_data(operators, input):
-    data = {}
+def operators_info_data(input):
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
-    for op_data_value in op_data.values():
-        if re.match(f'.*{input}.*',op_data_value['name']):
+    data = {}
+    for op_data_id, op_data_value in op_data.items():
+        if re.match(input,op_data_value['name']):
+            data['id'] = op_data_id
             data['name'] = op_data_value['name']
             data['art'] = op_data_value['art']
 
-    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+    return data
 
 # 幹員晉升資料(精英化I、II)
-def operators_evol_data(operators, materials, input):
-    data = {}
+def operators_evol_data(input):
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
+    data = {}
     for op_data_value in op_data.values():
-        if re.match(f'.*{input}.*',op_data_value['name']):
+        if re.match(input,op_data_value['name']):
             i = 1
             for phase_data in op_data_value['phases']:
                 if phase_data['evolveCost'] is not None:
@@ -233,74 +255,87 @@ def operators_evol_data(operators, materials, input):
                     data[f'evol_{i}'] = value
                     i+=1
 
-    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+    return data
 
 # 幹員技能資料(專精I、II、III)
-def operators_skill_data(operators, materials, input):
-    data = {}
-    value = {}
+def operators_skill_data(input):
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
+    data = {}
     for op_data_value in op_data.values():
-        if re.match(f'.*{input}.*',op_data_value['name']):
+        if re.match(input,op_data_value['name']):
             k = 1
             for phase_data in op_data_value['skills']:
+                value = {}
                 info = {}
                 info[f'skill_{k}_name'] = phase_data['skillName']
                 info[f'skill_{k}_art'] = phase_data['art']
+                noned = False
                 if len(phase_data['levelUpCosts']) != 0:
                     i = 1
                     for skillItems in phase_data['levelUpCosts']:
                         j = 1
+                        if skillItems is None:
+                            noned = True
+                            break
+                        up = {}
                         for skillItemCost in skillItems:
-                            title = f'skill_{i}_{j}'
+                            title = f'skillUp_{i}_{j}'
                             mat_name = materials[skillItemCost['id']]['name']
                             mat_count = skillItemCost['count']
                             mat_art = materials[skillItemCost['id']]['art']
                             mat_values = f'{mat_name},{mat_count},{mat_art}'
-                            value[title] = mat_values
+                            up[title] = mat_values
                             j+=1
+                        value[f'skillUp_{i}'] = up
                         i+=1
                     info[f'skill_{k}_values'] = value
                 else:
+                    noned = True
+
+                if noned:
                     info[f'skill_{k}_values'] = "該技能無專精資訊"
                 data[f'skill_{k}'] = info
                 k+=1
 
 
-    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+    return data
 
 # 幹員模組資料
-def operators_uniequip_data(operators, materials, input):
-    data = {}
-    value = {}
+def operators_uniequip_data(input):
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
+    mod = {}
     itemCost:Dict[str,any]
     for op_data_value in op_data.values():
-        if re.match(f'.*{input}.*',op_data_value['name']):
+        if re.match(input,op_data_value['name']):
+            j = 1
             for phase_data in op_data_value['uniequips']:
                 if phase_data['art'] is not None:
+                    data = {}
+                    value = {}
                     data['name'] = phase_data['uniEquipName']
                     data['art'] = phase_data['art']
                     itemCost = phase_data['itemCost']
                     for id, v in itemCost.items():
                         i = 1
-
+                        up = {}
                         for modItems in v:
-                            if modItems['id'] != '4001':
-                                title = f'mod_{id}_{i}'
-                                mat_name = materials[modItems['id']]['name']
-                                mat_count = modItems['count']
-                                mat_art = materials[modItems['id']]['art']
-                                mat_values = f'{mat_name},{mat_count},{mat_art}'
-                                value[title] = mat_values
+                            title = f'mod_{j}_{id}_{i}'
+                            mat_name = materials[modItems['id']]['name']
+                            mat_count = modItems['count']
+                            mat_art = materials[modItems['id']]['art']
+                            mat_values = f'{mat_name},{mat_count},{mat_art}'
+                            up[title] = mat_values
+                            value[f'mod_{j}_{id}'] = up
                             i+=1
-                    data[f'values'] = value
+                    data[f'mod_value'] = value
+                    mod[f'mod_{j}'] = data
+                    j+=1
 
-    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+    return mod
 
 # 若private資料夾不存在，即新建
 if not Path('./private').is_dir():

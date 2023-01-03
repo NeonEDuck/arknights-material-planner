@@ -1,6 +1,5 @@
 body {
     min-height: 100vh;
-    margin-top:10px;
 }
 h1 {
     text-align: center;
@@ -11,11 +10,113 @@ p {
     font-size: 20px;
     color: white;
 }
-img{
-    width:30px;
-    height:30px;
+
+.item-container {
+    position: relative;
+    display: inline-block;
 }
-.new td div{
-    display:inline-block;
-    position:relative;
+
+.item-container img{
+    width: 80px;
+    height: 80px;
+}
+
+.item-container span {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background-color: black;
+    color: white;
+    padding: 0em 0.5em;
+    line-height: 1em;
+}
+
+table td input[type="checkbox"] {
+    margin-block: auto;
+}
+
+#planner-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+main#planner-main {
+    flex: 1 0 0;
+    overflow: auto;
+}
+
+footer#planner-footer {
+    background-color: white;
+    max-height: 20vh;
+    overflow: auto;
+    padding: 1em;
+    box-shadow: 0 0 0.5em -0.25em black;
+}
+
+#search-box-wrapper {
+    position: relative;
+    width: fit-content;
+}
+
+#search-box-suggestion {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    top: 100%;
+    margin: 0;
+    padding: 0.25em 0;
+    gap: 0.25em;
+    background-color: white;
+    box-shadow: 0 0 0.5em -0.25em black;
+}
+
+#search-box-suggestion:empty {
+    display: none;
+}
+
+#search-box-suggestion li {
+    cursor: pointer;
+    padding-inline: 0.25em;
+}
+
+#search-box-suggestion li:hover {
+    background-color: aquamarine;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.align-start {
+    align-items: flex-start;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.align-end {
+    align-items: flex-end;
+}
+
+.justify-start {
+    justify-content: flex-start;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-end {
+    justify-content: flex-end;
 }
