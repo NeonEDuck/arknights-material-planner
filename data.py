@@ -198,7 +198,7 @@ def generate_data():
     return (operator_dict, material_dict)
 
 # 幹員基本資料(名稱、圖片)
-def operators_info_data(operators, input):
+def operators_info_data(input):
     data = {}
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
 
@@ -207,10 +207,10 @@ def operators_info_data(operators, input):
             data['name'] = op_data_value['name']
             data['art'] = op_data_value['art']
 
-    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+    return data
 
 # 幹員晉升資料(精英化I、II)
-def operators_evol_data(operators, materials, input):
+def operators_evol_data(input):
     data = {}
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
     op_data = {id:op for id, op in operators.items() if re.match(r'^char_', id)}# 幹員資料
@@ -233,10 +233,10 @@ def operators_evol_data(operators, materials, input):
                     data[f'evol_{i}'] = value
                     i+=1
 
-    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+    return data
 
 # 幹員技能資料(專精I、II、III)
-def operators_skill_data(operators, materials, input):
+def operators_skill_data(input):
     data = {}
     value = {}
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
@@ -249,10 +249,14 @@ def operators_skill_data(operators, materials, input):
                 info = {}
                 info[f'skill_{k}_name'] = phase_data['skillName']
                 info[f'skill_{k}_art'] = phase_data['art']
+                noned = False
                 if len(phase_data['levelUpCosts']) != 0:
                     i = 1
                     for skillItems in phase_data['levelUpCosts']:
                         j = 1
+                        if skillItems is None:
+                            noned = True
+                            break
                         for skillItemCost in skillItems:
                             title = f'skill_{i}_{j}'
                             mat_name = materials[skillItemCost['id']]['name']
@@ -264,15 +268,18 @@ def operators_skill_data(operators, materials, input):
                         i+=1
                     info[f'skill_{k}_values'] = value
                 else:
+                    noned = True
+
+                if noned:
                     info[f'skill_{k}_values'] = "該技能無專精資訊"
                 data[f'skill_{k}'] = info
                 k+=1
 
 
-    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+    return data
 
 # 幹員模組資料
-def operators_uniequip_data(operators, materials, input):
+def operators_uniequip_data(input):
     data = {}
     value = {}
     mat_name = [mat['name'] for mat in materials.values()]# 素材名稱
@@ -300,7 +307,7 @@ def operators_uniequip_data(operators, materials, input):
                             i+=1
                     data[f'values'] = value
 
-    return json.dumps(data, ensure_ascii=False, separators=[',', ':'])
+    return data
 
 # 若private資料夾不存在，即新建
 if not Path('./private').is_dir():
