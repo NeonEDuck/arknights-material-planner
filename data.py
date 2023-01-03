@@ -224,7 +224,7 @@ def operators_info_data(input):
 
     data = {}
     for op_data_id, op_data_value in op_data.items():
-        if re.match(f'.*{input}.*',op_data_value['name']):
+        if re.match(input,op_data_value['name']):
             data['id'] = op_data_id
             data['name'] = op_data_value['name']
             data['art'] = op_data_value['art']
@@ -238,7 +238,7 @@ def operators_evol_data(input):
 
     data = {}
     for op_data_value in op_data.values():
-        if re.match(f'.*{input}.*',op_data_value['name']):
+        if re.match(input,op_data_value['name']):
             i = 1
             for phase_data in op_data_value['phases']:
                 if phase_data['evolveCost'] is not None:
@@ -264,7 +264,7 @@ def operators_skill_data(input):
 
     data = {}
     for op_data_value in op_data.values():
-        if re.match(f'.*{input}.*',op_data_value['name']):
+        if re.match(input,op_data_value['name']):
             k = 1
             for phase_data in op_data_value['skills']:
                 value = {}
@@ -310,7 +310,7 @@ def operators_uniequip_data(input):
     mod = {}
     itemCost:Dict[str,any]
     for op_data_value in op_data.values():
-        if re.match(f'.*{input}.*',op_data_value['name']):
+        if re.match(input,op_data_value['name']):
             j = 1
             for phase_data in op_data_value['uniequips']:
                 if phase_data['art'] is not None:
