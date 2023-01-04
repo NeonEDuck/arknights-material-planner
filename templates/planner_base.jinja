@@ -11,8 +11,10 @@
 {% block content %}
 <div id="planner-container">
     <main id="planner-main">
-        <div>
+        <div class="flex flex-col align-center">
+            <h2>Arknights Planner</h2>
             <form method="get" action="/operator" class="flex flex-row">
+                <p>幹員搜尋</p>
                 <div id="search-box-wrapper">
                     <input type="text" name="search" id="search-box" autocomplete="off"/>
                     <ul id="search-box-suggestion"></ul>

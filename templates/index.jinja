@@ -2,10 +2,10 @@
 
 {% block operator_content %}
 {% for _, operator in operators.items() %}
-    <div>
+    <div class="operator-info-container">
         <div>
             <img src="{{ operator.art }}" width="80" height="80" alt="幹員名稱">
-            {{ operator.name }}
+            <h3>{{ operator.name }}</h3>
         </div>
         {% if operator.skills|length > 0 and operator.skills[0].levelUpCosts|length > 0 %}
             <h2>專精訓練</h2>
@@ -13,9 +13,9 @@
                 <tbody>
                     <tr>
                         <th></th>
-                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/5/57/专精_1.png" alt="專精1"><span>專精1</span></div></th>
-                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/c/c2/专精_2.png" alt="專精2"><span>專精2</span></div></th>
-                        <th><div class="flex flex-col align-center"><img src="https://prts.wiki/images/4/48/专精_3.png" alt="專精3"><span>專精3</span></div></th>
+                        <th colspan="2"><div class="flex flex-col align-center"><img src="https://prts.wiki/images/5/57/专精_1.png" alt="專精1"><span>專精1</span></div></th>
+                        <th colspan="2"><div class="flex flex-col align-center"><img src="https://prts.wiki/images/c/c2/专精_2.png" alt="專精2"><span>專精2</span></div></th>
+                        <th colspan="2"><div class="flex flex-col align-center"><img src="https://prts.wiki/images/4/48/专精_3.png" alt="專精3"><span>專精3</span></div></th>
                         <th></th>
                     </tr>
 
@@ -31,6 +31,8 @@
                                     {% if levelUpCost %}
                                         <td>
                                             <input type="checkbox" class="select-ckb" data-operator="{{ operator.id }}" data-upgrade="skill" data-number="{{ number }}" data-level="{{ loop.index0 }}">
+                                        </td>
+                                        <td>
                                             {% for item in levelUpCost %}
                                                 <div class="item-container">
                                                     <img src="{{ materials[item.id].art }}" alt="{{ materials[item.id].name }}">

@@ -1,6 +1,8 @@
 body {
     min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
 }
+
 h1 {
     text-align: center;
 }
@@ -8,7 +10,12 @@ h1 {
 p {
     font-family: verdana;
     font-size: 20px;
-    color: white;
+}
+
+input[type="checkbox"] {
+    width: 1em;
+    margin: 1em 0 1em 1em;
+    aspect-ratio: 1 / 1;
 }
 
 .item-container {
@@ -44,14 +51,19 @@ table td input[type="checkbox"] {
 main#planner-main {
     flex: 1 0 0;
     overflow: auto;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
 }
 
 footer#planner-footer {
     background-color: white;
     max-height: 20vh;
+    min-height: 5em;
     overflow: auto;
     padding: 1em;
-    box-shadow: 0 0 0.5em -0.25em black;
+    box-shadow: 0 0 0.5em -0em black;
 }
 
 #search-box-wrapper {
@@ -64,6 +76,7 @@ footer#planner-footer {
     width: 100%;
     display: flex;
     flex-direction: column;
+    list-style: none;
     top: 100%;
     margin: 0;
     padding: 0.25em 0;
@@ -83,6 +96,14 @@ footer#planner-footer {
 
 #search-box-suggestion li:hover {
     background-color: aquamarine;
+}
+
+.operator-info-container {
+    border-radius: 1em;
+    background-color: hsla(0 0% 10% / 75%);
+    padding: 1em;
+    box-shadow: 0 0 1em -0.25em black;
+    color: white;
 }
 
 .flex {
