@@ -7,7 +7,7 @@ from opencc import OpenCC
 from typing import Dict
 
 ARKNIGHTS_GAMEDATA_JSON_NAME = 'arknights_gamedata.json'
-ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.4'
+ARKNIGHTS_GAMEDATA_JSON_VERSION = '1.0.5'
 
 GITHUB_COMMITS_URL      = 'https://api.github.com/repos/Kengxxiao/ArknightsGameData/commits/master'
 OPERATOR_TABLE_URL      = 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json'
@@ -106,7 +106,7 @@ def generate_data():
     # Lancet-2:char_285_medic2
 
     # 幹員資料整理
-    for operator_id, operator_data in {k: v for k, v in unfiltered_operators.items() if re.match(r'^char_', k)}.items():
+    for operator_id, operator_data in {k: v for k, v in sorted(unfiltered_operators.items(), key=lambda x:x[1]['rarity']) if re.match(r'^char_', k)}.items():
         operator_dict[operator_id] = (operator := {
             'id': operator_id,
             'name': FIXED_NAME_TABLE['operators'].get(operator_id, cc.convert(operator_data['name'])),  # 幹員名稱
