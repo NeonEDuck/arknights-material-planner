@@ -58,12 +58,17 @@ main#planner-main {
 }
 
 footer#planner-footer {
+    position: relative;
     background-color: white;
     max-height: 20vh;
     min-height: 5em;
     overflow: auto;
     padding: 1em;
-    box-shadow: 0 0 0.5em -0em black;
+    box-shadow: 0 0 0.5em 0em black;
+}
+
+footer#planner-footer.expanded {
+    max-height: initial;
 }
 
 #search-box-wrapper {

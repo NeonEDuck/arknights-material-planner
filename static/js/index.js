@@ -168,3 +168,10 @@ serachBox.addEventListener('keyup', () => {
         serachBoxSuggestion.appendChild(li)
     }
 })
+
+const plannerFooter = document.querySelector('#planner-footer')
+const plannerFooterExpandBtn = document.querySelector('#planner-footer__expand-btn')
+
+plannerFooterExpandBtn.addEventListener('click', () => {
+    plannerFooter.classList.toggle('expanded')
+})

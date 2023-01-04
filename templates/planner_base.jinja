@@ -9,10 +9,11 @@
 {% endblock scripts %}
 
 {% block content %}
+<a href="https://ak.txwy.tw/" target="_blank" style="position: absolute; top:1em; right:1em"><img src="{{ url_for('static', filename='imgs/arknights_logo.webp') }}" alt="" width="128"></a>
 <div id="planner-container">
     <main id="planner-main">
         <div class="flex flex-col align-center">
-            <h2>Arknights Planner</h2>
+            <h2>Arknights Materials Planner</h2>
             <form method="get" action="/operator" class="flex flex-row">
                 <p>幹員搜尋</p>
                 <div id="search-box-wrapper">
@@ -29,6 +30,7 @@
     </main>
 
     <footer id="planner-footer">
+        <button id="planner-footer__expand-btn">展開/收起</button>
         <button id="select-all-btn">全選</button>
         <button id="clear-all-btn">清空</button>
         <span>總計:</span>
